@@ -1,0 +1,6 @@
+<div class="todo-container">
+  <app-input (onTaskAddition)="addTask($event)"></app-input>
+  <div *ngFor="let task of tasks" class="task-list">
+    <app-item [task]="task"></app-item>
+  </div>
+</div>

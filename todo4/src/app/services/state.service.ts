@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs/Rx';
 
-import { Item } from './../models/item.model';
-import { mockItems } from './../models/mock.data';
+import { Task } from './../models/task.model';
+import { mockTasks } from './../models/mock.data';
 
 @Injectable()
 export class StateService {
-	public tasks: Item[] = mockItems;
+	public tasks: Task[] = mockTasks;
 
 	public addTask(task: string): void {
-		const newTask: Item = new Item({
+		const newTask: Task = new Task({
 			description: task,
 		});
 
@@ -20,9 +20,9 @@ export class StateService {
 		// this.tasks = Object.assign([], [...this.tasks, newTask]);
 	}
 
-	public removeTask(task: string): void {
-		this.tasks = this.tasks.filter((item: Item): void => {
-			item.description !== task;
+	public removeTask(taskDescription: string): void {
+		this.tasks = this.tasks.filter((task: Task): void => {
+			task.description !== taskDescription;
 		})
 	}
 

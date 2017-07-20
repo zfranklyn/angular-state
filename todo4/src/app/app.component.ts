@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Item } from './models/item.model';
+import { Task } from './models/task.model';
 import { Store } from '@ngrx/store';
-import { mockItems } from './models/mock.data';
+import { mockTasks } from './models/mock.data';
 import { Observable } from 'Rxjs/rx';
 
 @Component({
@@ -12,7 +12,7 @@ import { Observable } from 'Rxjs/rx';
 
 export class AppComponent {
 
-  constructor(private store: Store<Item[]>) {}
+  constructor(private store: Store<Task[]>) {}
 
   public tasks: Observable<any>;
 

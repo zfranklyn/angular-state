@@ -1,7 +1,9 @@
-## Guide to Learning Redux
+# State Management in Angular
 
-Redux is a library for state management on single page applications. In a complex SPA with many different sources of data flowing left and right, you'll probably be asking yourself *where* you should store data. For instance:
+In a complex SPA with many different sources of data flowing left and right, you'll probably be asking yourself *where* you should store data. For instance:
+
 - Where do I keep track of UI state? whether this modal is open? whether user selected "light" vs "dark" theme?
+- In a messaging app, where should all my messages be stored?
 - If multiple components need access to the same source of data, where should I keep the data? As a property on the parent component? or as a property on a service?
 
 Redux's approach is to keep state in a single place, called a `store`, which can be accessed from anywhere in your SPA. It's not located on any individual component, and is most similar to having an Angular service dedicated purely to UI state. Although Redux was initially made for React, Angular has its own implementation of Redux called `ngrx/store`.
@@ -15,19 +17,84 @@ One big question you'll have after learning `ngrx/store` is how we manage side-e
 
 ===
 
-## Introduction to `ngrx/store` in Angular2
+## Introduction to State Management in Angular2
 
-Where do we keep track of state in an Angular2 application? There are probablly three approaches to this.
+Where do we keep track of state in an Angular2 application? There are probablly four main approaches to this.
 
 #### 1. On Closest Relevant Component
 
-The immediately obvious approach is to keep things on components themselves. For example, if we had a 
+The immediately obvious approach is to keep things on components themselves. In our `todo1` app example, task data is kept on the parent component:
 
+```
+  export class AppComponent {
+    // we keep track of UI data on the component itself.
+    public tasks: Item[] = mockItems;
 
-#### 2. On a Service, mutating
+    public addTask(task: string): void {
+      this.tasks.push(new Item({description: task}));
+    }
+
+  }
+```
+
+It should be clear *which* parent component the state needs to be on. For instance, if you have the following app structure:
+```
+  Component A
+  |         |
+  B         C
+```
+And `Component C` renders data that is changed by `Component B`, you'd want to keep the data on `Component A`. If the data were on `B`, then `A` would need a way of extracting said data from child `B`, and pass it down to child `C`.
+
+This approach can quickly get out of hand, leading to endlessly convoluted passing of properties and methods. If you do choose this approach, plan out your data architecture carefully, and make sure data stored on a component is accessible by others that need it.
+
+#### 2. On a Service
+
+The second approach places state on a separate service. In `todo2`, we've made this [`state.service.ts`](/todo2/src/app/services/state.service.ts):
+```
+@Injectable()
+export class StateService {
+	public tasks: Item[] = mockItems;
+
+	public addTask(task: string): void {
+		const newTask: Item = new Item({
+			description: task,
+		});
+
+		// Mutation Approach; must approach in order for angular to propogate change
+		this.tasks.push(newTask);
+
+		// Functional Approach will require use of observables
+		// this.tasks = Object.assign([], [...this.tasks, newTask]);
+	}
+
+	public removeTask(task: string): void {
+		this.tasks = this.tasks.filter((item: Item): void => {
+			item.description !== task;
+		})
+	}
+
+}
+```
+
+Furthermore, all UI mutation methods (add task, remove task, etc.) are moved onto the service. The service is then injected into the [component](/todo2/src/app/app.component.ts) as a dependency.
+```
+export class AppComponent {
+
+  constructor(private stateService: StateService) {}
+
+  public tasks: Item[] = this.stateService.tasks;
+
+  public addTask(task: string): void {
+  	this.stateService.addTask(task);
+  }
+}
+```
+The above approach results in a cleaner component, and separates functional logic (service) from presentational components.
+
 
 #### 3. On a Service [using RxJs](https://medium.com/front-end-developers/managing-state-in-angular-2-using-rxjs-b849d6bbd5a5)
 
-#### 4. Redux/`ngrx/store`
+
+#### 3. Redux/`ngrx/store`
 
 In Redux, the `store` is the UI's immutable state. Events trigger `actions`, which in turn manipulate the `store` through `reducers`.

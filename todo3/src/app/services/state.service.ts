@@ -16,7 +16,9 @@ export class StateService {
 		// Mutation Approach; must approach in order for angular to propogate change
 		this.tasks.push(newTask);
 
-		// Functional Approach will require use of observables
+		// Functional Approach will require use of observables, because Angular does not detect
+		// changes if you reassign the variable. Angular only detects mutation, so if you wanted
+		// to use the below approach, you'd have to use observables
 		// this.tasks = Object.assign([], [...this.tasks, newTask]);
 	}
 

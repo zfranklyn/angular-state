@@ -9,6 +9,7 @@ import { mockItems } from './models/mock.data';
 })
 
 export class AppComponent {
+  // we keep track of UI data on the component itself.
   public tasks: Item[] = mockItems;
 
   public addTask(task: string): void {

@@ -91,10 +91,68 @@ export class AppComponent {
 ```
 The above approach results in a cleaner component, and separates functional logic (service) from presentational components.
 
+#### 3. Observables [(RxJs)](https://medium.com/front-end-developers/managing-state-in-angular-2-using-rxjs-b849d6bbd5a5)
+You can also use observables to manage state. In observable parlance, the `public task` property from previous examples would be a stream of observables, and the `HTML` would parse it with an `async |` pipe. This approach is pretty complicated, and I would recommend using Redux if you're going to use this approach. The upside is that there's less boilerplate than Redux, downside is that it really requires you to know `RxJS` very well.
 
-#### 3. On a Service [using RxJs](https://medium.com/front-end-developers/managing-state-in-angular-2-using-rxjs-b849d6bbd5a5)
+The core of this approach is in the [`state.service.ts` file](todo3/src/app/services/state.service.ts):
+
+```
+@Injectable()
+export class StateService {
+
+	// item stream emits the most updated array of items; this is what components will subscribe to
+	public itemStream: Observable<Item[]>;
+
+	// action stream is a stream of user actions
+	public actionStream: Observable<any> = new Observable<any>();
+
+	// these are the actual actions users can take, which are fed into the actionStream
+	public createItemActionStream: Subject<Action> = new Subject<Action>();
+	public removeItemActionStream: Subject<Action> = new Subject<Action>();
+
+	// methods; this is somewhat redux-like syntax
+	public createItem(str: string): void {
+		const newItem = new Item({
+			description: str,
+		})
+		this.createItemActionStream.next({actionType: 'create', payload: newItem});
+	}
+
+	public removeItem(itemString: string): void {
+		this.removeItemActionStream.next({actionType: 'remove', payload: itemString});
+	}
+
+	public constructor() {
+		// merge create and remove actions into one stream
+		this.actionStream = this.createItemActionStream.merge(this.removeItemActionStream)
+
+    // here, we keep track of the array of tasks, and apply new actions to it
+		this.itemStream = this.actionStream.scan((accum: Item[], action: Action) => {
+				switch (action.actionType) {
+					case 'create':
+						return accum.concat(action.payload);
+					case 'remove':
+						return accum.filter((i: Item) => i.description !== action.payload)
+					default:
+						return accum;
+				}
+		}, [])
+
+	}
+}
+```
+
+(pg. 84 of Haggerty's book gives a great overview of this approach)
+
+The Observables + `async |` combo is pretty neat, and allows you to write more declarative code with less mutation. Reactive programming makes for cleaner and more concise code, but at the expense of its authors really needing to know `RxJS`.
+
+Additionally, the ability to *inject* this state service wherever we want gives it Redux `store`-like properties. No more need to constantly pass properties and methods between parent and child components!
 
 
-#### 3. Redux/`ngrx/store`
+#### 4. Redux/`ngrx/store`
+Redux is a whole new beast, but given that the programming paradigm is same for both Angular and React, it may be worth investing in.
+
+The key problem that Redux solves is that of state. If you revisit `todo1`, you'll recall that every component might have its own local `state`. This gets very messy and hard to maintain as apps become more complex, because you're constantly passing properties and methods between parent and child elements.
+
 
 In Redux, the `store` is the UI's immutable state. Events trigger `actions`, which in turn manipulate the `store` through `reducers`.

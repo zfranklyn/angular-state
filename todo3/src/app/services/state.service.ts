@@ -4,28 +4,52 @@ import { Observable, Subject } from 'rxjs/Rx';
 import { Item } from './../models/item.model';
 import { mockItems } from './../models/mock.data';
 
+class Action {
+	public actionType: string;
+	public payload: any;
+}
+
 @Injectable()
 export class StateService {
-	public tasks: Item[] = mockItems;
 
-	public addTask(task: string): void {
-		const newTask: Item = new Item({
-			description: task,
-		});
+	// item stream emits the most updated array of items
+	public itemStream: Observable<Item[]>;
 
-		// Mutation Approach; must approach in order for angular to propogate change
-		this.tasks.push(newTask);
+	// action stream is a stream of user actions
+	public actionStream: Observable<any> = new Observable<any>();
 
-		// Functional Approach will require use of observables, because Angular does not detect
-		// changes if you reassign the variable. Angular only detects mutation, so if you wanted
-		// to use the below approach, you'd have to use observables
-		// this.tasks = Object.assign([], [...this.tasks, newTask]);
-	}
+	// these are the actual actions users can take, which are fed into the actionStream
+	public createItemActionStream: Subject<Action> = new Subject<Action>();
+	public removeItemActionStream: Subject<Action> = new Subject<Action>();
 
-	public removeTask(task: string): void {
-		this.tasks = this.tasks.filter((item: Item): void => {
-			item.description !== task;
+	// methods; this is somewhat redux-like syntax
+	public createItem(str: string): void {
+		const newItem = new Item({
+			description: str,
 		})
+		this.createItemActionStream.next({actionType: 'create', payload: newItem});
 	}
+
+	public removeItem(itemString: string): void {
+		this.removeItemActionStream.next({actionType: 'remove', payload: itemString});
+	}
+
+	public constructor() {
+		// merge create and remove actions into one stream
+		this.actionStream = this.createItemActionStream.merge(this.removeItemActionStream)
+
+		this.itemStream = this.actionStream.scan((accum: Item[], action: Action) => {
+				switch (action.actionType) {
+					case 'create':
+						return accum.concat(action.payload);
+					case 'remove':
+						return accum.filter((i: Item) => i.description !== action.payload)
+					default:
+						return accum;
+				}
+		}, [])
+
+	}
+
 
 }

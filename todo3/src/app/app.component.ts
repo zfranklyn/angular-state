@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Item } from './models/item.model';
 import { mockItems } from './models/mock.data';
+import { Observable } from 'rxjs';
 
 import { StateService } from './services/state.service';
 
@@ -12,11 +13,13 @@ import { StateService } from './services/state.service';
 
 export class AppComponent {
 
-  constructor(private stateService: StateService) {}
+  constructor(private stateService: StateService) {
+    this.stateService.itemStream.subscribe(console.log);
+  }
 
-  public tasks: Item[] = this.stateService.tasks;
+  public tasks: Observable<Item[]> = this.stateService.itemStream;
 
-  public addTask(task: string): void {
-  	this.stateService.addTask(task);
+  public addTask(str: string): void {
+  	this.stateService.createItem(str);
   }
 }

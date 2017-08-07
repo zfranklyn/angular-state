@@ -25,7 +25,7 @@ Where do we keep track of state in an Angular2 application? There are probablly 
 
 The immediately obvious approach is to keep things on components themselves. In our `todo1` app example, task data is kept on the parent component:
 
-```
+```typescript
   export class AppComponent {
     // we keep track of UI data on the component itself.
     public tasks: Item[] = mockItems;
@@ -50,7 +50,7 @@ This approach can quickly get out of hand, leading to endlessly convoluted passi
 #### 2. On a Service
 
 The second approach places state on a separate service. In `todo2`, we've made this [`state.service.ts`](/todo2/src/app/services/state.service.ts):
-```
+```typescript
 @Injectable()
 export class StateService {
 	public tasks: Item[] = mockItems;
@@ -77,7 +77,7 @@ export class StateService {
 ```
 
 Furthermore, all UI mutation methods (add task, remove task, etc.) are moved onto the service. The service is then injected into the [component](/todo2/src/app/app.component.ts) as a dependency.
-```
+```typescript
 export class AppComponent {
 
   constructor(private stateService: StateService) {}
@@ -94,9 +94,9 @@ The above approach results in a cleaner component, and separates functional logi
 #### 3. Observables [(RxJs)](https://medium.com/front-end-developers/managing-state-in-angular-2-using-rxjs-b849d6bbd5a5)
 You can also use observables to manage state. In observable parlance, the `public task` property from previous examples would be a stream of observables, and the `HTML` would parse it with an `async |` pipe. This approach is pretty complicated, and I would recommend using Redux if you're going to use this approach. The upside is that there's less boilerplate than Redux, downside is that it really requires you to know `RxJS` very well.
 
-The core of this approach is in the [`state.service.ts` file](todo3/src/app/services/state.service.ts):
+The core of this approach is in the [`state.service.ts`](todo3/src/app/services/state.service.ts) file:
 
-```
+```typescript
 @Injectable()
 export class StateService {
 

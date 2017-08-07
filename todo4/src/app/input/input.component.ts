@@ -25,7 +25,6 @@ export class InputComponent implements OnInit {
   	const taskDescription: string = this.input.nativeElement.value;
 
   	if (taskDescription) {
-  		console.log(`Adding Task: ${taskDescription}`);
   		this.input.nativeElement.value = '';
   		this.store.dispatch(new AddTaskAction(taskDescription));
   	}

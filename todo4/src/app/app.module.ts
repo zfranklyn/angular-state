@@ -6,7 +6,6 @@ import { AppComponent } from './app.component';
 import { ItemComponent } from './item/item.component';
 import { InputComponent } from './input/input.component';
 
-import { StateService } from './services/state.service';
 import { ApiService } from './services/api.service';
 
 // ngrx/store
@@ -27,9 +26,9 @@ import { TaskEffects } from './effects/tasks.effect';
   imports: [
     BrowserModule,
     StoreModule.forRoot({ tasks: taskReducer }),
-    EffectsModule.run(TaskEffects),
+    EffectsModule.forRoot([TaskEffects]),
   ],
-  providers: [StateService, ApiService],
+  providers: [ApiService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

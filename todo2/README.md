@@ -1,3 +1,3 @@
-## State Management Approach 1
+## State Management Approach 2
 
-This todolist app keeps track of UI state and data on the closest parent component.
+Keeps track of UI state in a `service` file, distinct from presentational component. Better separation of concerns.

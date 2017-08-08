@@ -1,3 +1,3 @@
-## State Management Approach 1
+## State Management Approach 3: Observables and `RxJS`
 
-This todolist app keeps track of UI state and data on the closest parent component.
+Uses observables to keep track of state. Less boilerplate than `ngrx/store`, but requires strong knowledge of observables.

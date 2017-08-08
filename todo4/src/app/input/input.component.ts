@@ -10,10 +10,8 @@ import { Store } from '@ngrx/store';
 export class InputComponent implements OnInit {
 
   @ViewChild('input') public input: ElementRef;
-  @Output() public onTaskAddition: EventEmitter<string>;
 
   constructor(private store: Store<any>) {
-  	this.onTaskAddition = new EventEmitter<string>();
   }
 
   public ngOnInit() {
